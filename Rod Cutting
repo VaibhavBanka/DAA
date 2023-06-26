@@ -1,0 +1,243 @@
+My Fibanocci Term
+ 
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+long long find(int n,vector<long long>& arr){
+if(arr[n] != -1){
+return arr[n];
+}
+
+arr[n] = find(n-1,arr) + find(n-2,arr) + find(n-3,arr);
+return arr[n];
+}
+
+int main(){
+
+int n;
+cin>>n;
+
+vector<long long> arr(n+1,-1);
+arr[0] = 0;
+arr[1] = 0;
+arr[2] = 1;
+arr[3] = 2;
+
+long long answer = find(n,arr);
+
+cout<<answer;
+
+return 0;
+}
+
+Cut into lengths 3 or 5
+
+#include<iostream>
+#include<algorithm>
+#include<climits>
+using namespace std;
+
+int auxRodCutting(int *p , int* revs, int n) {
+if (revs[n] > 0) {
+return revs[n];
+}
+if (n == 0) {
+revs[n] = 0;
+return revs[n];
+}
+if (n > 0 && n < 3) {
+revs[n] = -1;
+return revs[n];
+}
+int q = INT_MIN;
+q = max(q, p[2] + auxRodCutting(p, revs, n-3));
+if (n >= 5) {
+q = max(q, p[4] + auxRodCutting(p, revs, n-5));
+}
+revs[n] =q;
+return revs[n];
+}
+int rodCutting(int* p, int n) {
+int* maxRevs = new int(n+1);
+for (int i = 0; i < n+1; i++) {
+maxRevs[i] = INT_MIN;
+}
+int maxRev = auxRodCutting(p ,maxRevs, n);
+/*for (int i = 0; i < n+1; i++) {
+cout << maxRevs[i] << endl;
+}*/
+return maxRev;
+}
+int main () {
+int len, i;
+//cout << "Enter maximum length of the rod: ";
+cin >> len;
+int* prices = new int(len);
+//cout << "Enter price for length 3: ";
+cin >> prices[2];
+//cout << "Enter price for length 5: ";
+cin >> prices[4];
+int maxRev = rodCutting(prices, len);
+cout << maxRev << endl;
+return 0;
+}
+
+Print Rod Lengths
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+void rodCutting(int n, const vector<int>& prices) {
+    vector<int> revenue(n + 1, 0);
+    vector<int> cuts(n + 1, 0);
+
+    for (int i = 1; i <= n; i++) {
+        int maxRevenue = -1;
+        for (int j = 1; j <= i / 2; j++) {
+            int currentRevenue = prices[j] + revenue[i - j];
+            if (currentRevenue > maxRevenue) {
+                maxRevenue = currentRevenue;
+                cuts[i] = j;
+            }
+        }
+        if (prices[i] > maxRevenue) {
+            maxRevenue = prices[i];
+            cuts[i] = i;
+        }
+        revenue[i] = maxRevenue;
+    }
+
+    
+    while (n > 0) {
+        cout << cuts[n] << " ";
+        n -= cuts[n];
+    }
+    cout << revenue[revenue.size() - 1] << endl;
+}
+
+int main() {
+    int n;
+    cin >> n;
+
+    vector<int> prices(n + 1);
+    for (int i = 1; i <= n; i++) {
+        cin >> prices[i];
+    }
+
+    rodCutting(n, prices);
+
+    return 0;
+}
+
+Cut Rods of Preferred Lengths
+
+#include<iostream>
+#include<algorithm>
+#include<climits>
+using namespace std;
+
+int auxRodCutting(int *p , int* revs, int n, int* prefs, int t) {
+//cout << "Piece size: " << n << endl;
+if (revs[n] >= 0) {
+return revs[n];
+}
+if (n == 0) {
+revs[n] = 0;
+return revs[n];
+}
+if (n > 0 && n < prefs[0]) {
+revs[n] = -1;
+return revs[n];
+}
+int q = INT_MIN;
+for (int i = 0; i < t; i++) {
+if (prefs[i] <= n) {
+q = max(q, p[prefs[i]-1] + auxRodCutting(p, revs, n - prefs[i], prefs, t));
+}
+}
+revs[n] =q;
+return revs[n];
+}
+int rodCutting(int* p, int n, int* prefs, int t) {
+int* maxRevs = new int(n+1);
+for (int i = 0; i < n+1; i++) {
+maxRevs[i] = INT_MIN;
+}
+int maxRev = auxRodCutting(p ,maxRevs, n, prefs, t);
+for (int i = 0; i < n+1; i++) {
+//cout << maxRevs[i] << endl;
+}
+return maxRev;
+}
+int main () {
+int len, i;
+cin >> len;
+int* prices = new int(len);
+for (i = 0; i < len; ++i) {
+cin >> prices[i];
+}
+int t;
+cin >> t;
+int* prefs = new int(t);
+for (i = 0; i < t; i++) {
+cin >> prefs[i];
+}
+int maxRev = rodCutting(prices, len, prefs, t);
+cout << maxRev << endl;
+return 0;
+}
+
+Cut Rods of Even Length only
+
+#include <iostream>
+#include <cstring>
+#include <climits>
+using namespace std;
+
+// Function to calculate maximum revenue using Top-Down approach
+int cutRod(int price[], int n, int dp[]) {
+    if (n <= 0)
+        return 0;
+        
+    // If the value is already calculated, return it
+    if (dp[n] != -1)
+        return dp[n];
+        
+    int max_val = INT_MIN;
+    
+    // Loop through all possible even sizes of the rod
+    for (int i = 2; i <= n; i += 2) {
+        int cost = price[i];
+        int val = cost + cutRod(price, n-i, dp);
+        
+        // Update max_val
+        if (val > max_val)
+            max_val = val;
+    }
+    
+    // Store the computed value in dp[] and return it
+    dp[n] = max(dp[n-1], max_val);
+    return dp[n];
+}
+
+int main() {
+    int n;
+    cin >> n;
+    
+    int price[n+1];
+    for (int i = 1; i <= n; i++)
+        cin >> price[i];
+        
+    // Initialize dp[] with -1
+    int dp[n+1];
+    memset(dp, -1, sizeof(dp));
+    dp[0] = 0;
+    
+    int ans = cutRod(price, n, dp);
+    cout << ans;
+    
+    return 0;
+}
