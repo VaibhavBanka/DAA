@@ -1,0 +1,242 @@
+Recursive Matrix Chain multiplication:-
+
+#include <iostream>
+#include <vector>
+#include <climits>
+
+using namespace std;
+
+int matrix_chain_mul(int start, int end, vector<int>& p) {
+    if (start == end) {
+        return 0;  
+    }
+
+    int min_cost = INT_MAX;
+    for (int k = start; k < end; k++) {
+        int cost = matrix_chain_mul(start, k, p) + matrix_chain_mul(k + 1, end, p)
+                    + p[start - 1] * p[k] * p[end];
+
+        min_cost = min(min_cost, cost);
+    }
+
+    return min_cost;
+}
+
+
+
+
+Number of ways to parenthesize:-
+
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+int count_parentheses(int n) {
+    vector<vector<int>> dp(n, vector<int>(n, 0)); 
+    
+    
+    for (int i = 0; i < n; i++) {
+        dp[i][i] = 1;
+    }
+    
+    
+    for (int L = 2; L <= n; L++) {
+        for (int i = 0; i <= n - L; i++) {
+            int j = i + L - 1;
+            
+            dp[i][j] = 0; 
+            
+            
+            for (int k = i; k < j; k++) {
+                dp[i][j] += dp[i][k] * dp[k + 1][j]; 
+            }
+        }
+    }
+    
+    return dp[0][n - 1]; 
+}
+
+int main() {
+    int n;
+    
+    cin >> n;
+    
+    int ways = count_parentheses(n);
+    cout << ways << endl;
+
+    return 0;
+}
+
+Maximum cost for matrix chain multiplication:-
+
+#include <iostream>
+#include <vector>
+#include <climits>
+
+using namespace std;
+
+
+void printParenthesis(vector<vector<int>>& s, int i, int j) {
+    if (i == j) {
+        cout << "A" << i;
+        return;
+    }
+
+    cout << "(";
+    printParenthesis(s, i, s[i][j]);
+    printParenthesis(s, s[i][j] + 1, j);
+    cout << ")";
+}
+
+
+int matrixChainOrder(vector<int>& dims) {
+    int n = dims.size() - 1;
+
+    
+    vector<vector<int>> m(n + 1, vector<int>(n + 1, 0));
+    vector<vector<int>> s(n + 1, vector<int>(n + 1, 0));
+
+    for (int len = 2; len <= n; len++) {
+        for (int i = 1; i <= n - len + 1; i++) {
+            int j = i + len - 1;
+            m[i][j] = INT_MIN;
+
+            for (int k = i; k < j; k++) {
+                int cost = m[i][k] + m[k + 1][j] + dims[i - 1] * dims[k] * dims[j];
+                if (cost > m[i][j]) {
+                    m[i][j] = cost;
+                    s[i][j] = k;
+                }
+            }
+        }
+    }
+
+    
+    for (int i = 1; i <= n-1; i++) {
+        for (int j = i+1; j <= n; j++) {
+            cout << m[i][j] << " ";
+        }
+        cout << endl;
+    }
+
+
+    for (int i = 1; i <= n-1; i++) {
+        for (int j = i+1; j <= n; j++) {
+            cout << s[i][j] << " ";
+        }
+        cout << endl;
+    }
+
+    cout <<  m[1][n] << endl;
+
+    
+    printParenthesis(s, 1, n);
+    cout << endl;
+
+    return m[1][n];
+}
+
+int main() {
+    int n;
+    cin >> n;
+
+    vector<int> dims(n);
+    for (int i = 0; i < n; i++) {
+        cin >> dims[i];
+    }
+
+    int maxCost = matrixChainOrder(dims);
+
+    return 0;
+}
+
+
+
+
+
+
+
+Matrix Chain Multiplication Top Down:-
+
+
+#include <iostream>
+#include <vector>
+#include <climits>
+
+using namespace std;
+
+void print_tables(vector<vector<int>>& m, vector<vector<int>>& s) {
+    int n = m.size();
+    
+    
+    for (int i = 1; i < n-1; i++) {
+        for (int j = i+1; j < n; j++) {
+            if (j >= i)
+                cout << m[i][j] << " ";
+            else
+                cout << "0 ";
+        }
+        cout << endl;
+    }
+
+    
+    for (int i = 1; i < n-1; i++) {
+        for (int j = i+1; j < n; j++) {
+            if (j > i)
+                cout << s[i][j] << " ";
+            else
+                cout << "0 ";
+        }
+        
+        cout << endl;
+        
+    }
+}
+
+int matrix_chain_mul(vector<int>& p, vector<vector<int>>& m, vector<vector<int>>& s, int i, int j) {
+    if (i == j)
+        return 0;
+
+    if (m[i][j] != -1)
+        return m[i][j];
+
+    m[i][j] = INT_MAX;
+
+    for (int k = i; k < j; k++) {
+        int cost = matrix_chain_mul(p, m, s, i, k) + matrix_chain_mul(p, m, s, k + 1, j) + p[i - 1] * p[k] * p[j];
+
+        if (cost < m[i][j]) {
+            m[i][j] = cost;
+            s[i][j] = k;
+        }
+    }
+
+    return m[i][j];
+}
+
+int main() {
+    int n;
+    cin >> n;
+
+    vector<int> p(n);
+    for (int i = 0; i < n; i++) {
+        cin >> p[i];
+    }
+
+    vector<vector<int>> m(n, vector<int>(n, -1));
+    vector<vector<int>> s(n, vector<int>(n, -1));
+
+    int min_cost = matrix_chain_mul(p, m, s, 1, n - 1);
+
+    print_tables(m, s);
+
+    cout << min_cost ;
+
+    return 0;
+}
+
+
+
+
