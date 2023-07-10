@@ -1,0 +1,108 @@
+//{ Driver Code Starts
+// Initial Template for C++
+
+#include <bits/stdc++.h>
+using namespace std;
+
+// } Driver Code Ends
+// User function Template for C++
+
+class Solution{
+public:
+    void printboard(vector<vector<int>>&board,vector<vector<int>>&solutions){
+        int n=board.size();
+        vector<int>s;
+        for(int i=0;i<n;i++){
+            for(int j=0;j<n;j++){
+                if(board[i][j] == 1){
+                   s.push_back(j+1);
+                }
+            }
+        }
+        solutions.push_back(s);
+        
+        // for(auto i : solutions){
+        //     for(auto j:i)
+        //     cout<<j<<" ";
+        //     cout<<endl;
+        // }
+    }
+    bool notattacked(vector<vector<int>>&board,int row,int col){
+        int n=board.size();
+        for(int i=0;i<n;i++){
+            if((i!=col)&&(board[row][i]==1))
+            return 0;
+        }
+        for(int i=0;i<n;i++){
+            if((i!=row)&&(board[i][col]==1))
+            return 0;
+        }
+        for(int i=row+1,j=col+1;i<n&&j<n;i++,j++){
+            if(board[i][j]==1)
+            return 0;
+        }
+        for(int i=row+1,j=col-1;i<n&&j>=0;i++,j--){
+            if(board[i][j]==1)
+            return 0;
+        }
+        for(int i=row-1,j=col+1;i>=0&&j<n;i--,j++){
+            if(board[i][j]==1)
+            return 0;
+        }
+        for(int i=row-1,j=col-1;i>=0&&j>=0;i--,j--){
+            if(board[i][j]==1)
+            return 0;
+        }
+        return 1;
+    }
+    void nq(vector<vector<int>>&board,int n,int curr_row,vector<vector<int>>&solutions){
+        if(curr_row==n){
+            // solutions.push_back(board);
+            printboard(board,solutions);
+            return;
+        }
+        for(int i=0;i<n;i++){
+            if(notattacked(board,curr_row,i)){
+                board[curr_row][i]=1;
+                nq(board, n, curr_row + 1,solutions);
+                board[curr_row][i]=0;
+            }
+        }
+        // return;
+    }
+    vector<vector<int>> nQueen(int n) {
+        // code here
+        vector<int>row(n,0);
+        vector<vector<int>>board(n,row);
+        vector<vector<int>>solutions;
+        nq(board,n,0,solutions);
+        return solutions;
+    }
+};
+
+//{ Driver Code Starts.
+
+int main(){
+    int t;
+    cin>>t;
+    while(t--){
+        int n;
+        cin>>n;
+        
+        Solution ob;
+        vector<vector<int>> ans = ob.nQueen(n);
+        if(ans.size() == 0)
+            cout<<-1<<"\n";
+        else {
+            for(int i = 0;i < ans.size();i++){
+                cout<<"[";
+                for(int u: ans[i])
+                    cout<<u<<" ";
+                cout<<"] ";
+            }
+            cout<<endl;
+        }
+    }
+    return 0;
+}
+// } Driver Code Ends
