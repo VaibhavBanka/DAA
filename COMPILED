@@ -1,0 +1,891 @@
+//Max Sum Array
+
+#include<iostream>
+using namespace std;
+#include<vector>
+#include<limits.h>
+struct details
+{
+    int low;
+    int high;
+    int sum;
+};
+details find_max_crossing_subarray(vector<int> a, int low, int mid, int high)
+{
+    int left_sum, right_sum, sum, i, max_left, max_right;
+    details d;
+    sum = 0;
+    left_sum = INT_MIN;
+    for(i=mid;i>=low;i--)
+    {
+        sum += a[i];
+        if (sum>left_sum)
+        {
+            left_sum = sum;
+            max_left = i;
+        }
+    }
+    right_sum = INT_MIN;
+    sum=0;
+    for(i=mid+1;i<=high;i++)
+    {
+        sum+=a[i];
+        if (sum>right_sum)
+        {
+            right_sum = sum;
+            max_right = i;
+        }
+    }
+    d.low = max_left;
+    d.high = max_right;
+    d.sum = left_sum + right_sum;
+    return d;
+}
+details find_maximum_subarray(vector<int> a,int low,int high)
+{
+    details left_details,right_details,cross_details,d;
+    int mid;
+    if(low==high)
+    {
+        d.low = low;
+        d.high = high;
+        d.sum = a[low];
+        return d;
+    }
+    mid = (low+high)/2;
+    left_details = find_maximum_subarray(a,low,mid);
+    right_details = find_maximum_subarray(a,mid+1,high);
+    cross_details = find_max_crossing_subarray(a,low,mid,high);
+    if((left_details.sum>=right_details.sum)&&(left_details.sum>=cross_details.sum))
+        return left_details;
+    else if((right_details.sum>=left_details.sum)&&(right_details.sum>=cross_details.sum))
+        return right_details;
+    else
+        return cross_details;
+}
+int main()
+{
+    vector<int> A;
+    int low,high,n,i,ele;
+    details ans;
+    cin>>n;
+    for(i=0;i<n;i++)
+    {
+        cin>>ele;
+        A.push_back(ele);
+    }
+    cout<<"Finished IP";
+    ans = find_maximum_subarray(A,0,n-1);
+    cout<<ans.low<<" "<<ans.high<<" "<<ans.sum<<endl;
+}
+---------------------------------------------------------------------------------------
+
+//NQueen
+
+#include<iostream>
+using namespace std;
+#include<vector>
+#include<stack>
+void print_board(vector<vector<int> > board)
+{
+    int n,i,j;
+    static int count = 1;
+    n = board.size();
+    for(i=0;i<n;i++)
+    {
+        for(j=0;j<n;j++)
+            cout<<board[i][j]<<" ";
+        cout<<endl;
+    }
+    cout<<"Completed "<<count++<<endl;
+}
+bool not_attacked(vector<vector<int> > &board,int row,int col)
+{
+ int n = board.size(),i,j;
+ // check if there is a queen in the same row
+ for(j=0;j<n;j++)
+ {
+     if((j!=col)&&(board[row][j]==1))
+        return 0;
+ }
+ // Check if there is a queen in same column
+ for(i=0;i<n;i++)
+ {
+     if((i!=row)&&(board[i][col]==1))
+        return 0;
+ }
+ // both row and column increase
+ for(i=row+1,j=col+1;i<n&&j<n;i++,j++)
+ {
+    if(board[i][j]==1)
+        return 0;
+}
+// both row and column decrease
+for(i=row-1,j=col-1;i>=0&&j>=0;i--,j--)
+{
+    if(board[i][j]==1)
+        return 0;
+}
+// row increase and column decrease
+for(i=row+1,j=col-1;i<n&&j>=0;i++,j--)
+{
+    if(board[i][j]==1)
+        return 0;
+}
+// row decrease and column increase
+for(i=row-1,j=col+1;i>=0&&j<n;i--,j++)
+{
+    if(board[i][j]==1)
+        return 0;
+}
+    return 1;
+}
+void n_queens(vector<vector<int> > &board, int n, int curr_row)
+{
+    int i;
+    if(curr_row==n)
+    {
+        print_board(board);
+        return ;
+    }
+    for(i=0;i<n;i++)
+    {      
+        // if the ith column is valid for current row then
+        // place queen in column and then goto next row  
+        // Remove the queen in the ith column and try other 
+        // columns to right of 'i' - backtrack to find all solutions
+        if(not_attacked(board,curr_row,i))
+        {
+            board[curr_row][i] = 1;
+            n_queens(board,n,curr_row+1);
+            board[curr_row][i] = 0;
+        }
+    }
+}
+int main()
+{
+    int n,i,j;
+    cin>>n;
+    vector<int> row(n,0);
+    vector<vector<int> >  board(n, row);
+
+    n_queens(board,n,0);
+   // print_board(board);
+}
+---------------------------------------------------------------------------------------
+
+// Floyds
+
+#include <iostream>
+#include <vector>
+using namespace std;
+int main()
+{
+    int v;
+    cout << "enter number of vertex: ";
+    cin >> v;
+    vector<vector<int>> matrix(v, vector<int>(v));
+    cout << "enter adjancecy matrix: " << endl;
+    for (int i = 0; i < v; i++)
+    {
+        for (int j = 0; j < v; j++)
+        {
+            cin >> matrix[i][j];
+        }
+    }
+    cout << "Input matrix: " << endl;
+    for (int i = 0; i < v; i++)
+    {
+        for (int j = 0; j < v; j++)
+        {
+            cout << matrix[i][j] << "  ";
+        }
+        cout << endl;
+    }
+    cout << endl;
+    for (int i = 0; i < v; i++)
+    {
+        for (int j = 0; j < v; j++)
+        {
+            if (matrix[i][j] == -1)
+
+            {
+                matrix[i][j] = 1e9;
+            }
+        }
+    }
+    for (int via = 0; via < v; via++)
+    {
+        for (int i = 0; i < v; i++)
+        {
+            for (int j = 0; j < v; j++)
+            {
+                if (matrix[i][via] == 1e9 || matrix[via][j] == 1e9)
+                {
+                    continue;
+                }
+                matrix[i][j] = min(matrix[i][j], matrix[i][via] + matrix[via][j]);
+            }
+        }
+    }
+    for (int i = 0; i < v; i++)
+    {
+        if (matrix[i][i] < 0)
+        {
+            cout << "negative cycle" << endl;
+            return 0;
+        }
+    }
+    for (int i = 0; i < v; i++)
+    {
+        for (int j = 0; j < v; j++)
+        {
+            if (matrix[i][j] == 1e9)
+            {
+                matrix[i][j] = -1;
+            }
+        }
+    }
+    cout << "final cost matrix: " << endl;
+    for (int i = 0; i < v; i++)
+    {
+        for (int j = 0; j < v; j++)
+        {
+            cout << matrix[i][j] << "  ";
+        }
+        cout << endl;
+    }
+}
+
+--------------------------------------------------------------------------------------
+
+// Ford Fulkerson
+
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <climits>
+
+using namespace std;
+
+int bfs(int source, int sink, vector<int> &parent, vector<vector<int>> &residualGraph)
+{
+    fill(parent.begin(), parent.end(), -1);
+    int V = residualGraph.size();
+    parent[source] = -2;
+    queue<pair<int, int>> q;
+    q.push({source, INT_MAX});
+
+    while (!q.empty())
+    {
+        int u = q.front().first;
+        int capacity = q.front().second;
+        q.pop();
+        for (int v = 0; v < V; v++)
+        {
+            if (u != v && parent[v] == -1 && residualGraph[u][v] != -1)
+            {
+                parent[v] = u;
+                int min_cap = min(capacity, residualGraph[u][v]);
+                if (v == sink)
+                    return min_cap;
+                q.push({v, min_cap});
+            }
+        }
+    }
+    return 0;
+}
+
+int ford_fulkerson(vector<vector<int>> &graph, int source, int sink)
+{
+    vector<int> parent(graph.size(), -1);
+    vector<vector<int>> residualGraph = graph;
+    int min_cap = 0, max_flow = 0;
+    while ((min_cap = bfs(source, sink, parent, residualGraph)) != 0)
+    {
+        max_flow += min_cap;
+        int u = sink;
+        while (u != source)
+        {
+            int v = parent[u];
+            residualGraph[u][v] += min_cap;
+            residualGraph[v][u] -= min_cap;
+            u = v;
+        }
+    }
+    return max_flow;
+}
+
+int main()
+{
+    int V;
+    cout << "Enter the number of vertices: ";
+    cin >> V;
+
+    vector<vector<int>> graph(V, vector<int>(V, -1));
+
+    cout << "Enter the adjacency matrix:\n";
+    for (int i = 0; i < V; i++)
+    {
+        for (int j = 0; j < V; j++)
+        {
+            cin >> graph[i][j];
+        }
+    }
+
+    int source, sink;
+    cout << "Enter the source vertex: ";
+    cin >> source;
+    cout << "Enter the sink vertex: ";
+    cin >> sink;
+
+    cout << "Maximum Flow: " << ford_fulkerson(graph, source, sink) << endl;
+
+    return 0;
+}
+
+--------------------------------------------------------------------------------------
+
+// Jarvi
+
+#include <iostream>
+#include <vector>
+using namespace std;
+struct point
+{
+    int x, y;
+};
+bool tochange(point p, point q, point r)
+{
+    int x1 = q.x - p.x;
+    int y1 = q.y - p.y;
+    int x2 = r.x - q.x;
+    int y2 = r.y - q.y;
+    int value = x1 * y2 - y1 * x2;
+    return value > 0;
+}
+void convexhull(point points[], int n)
+{
+    vector<point> hull;
+    int left = 0;
+    for (int i = 1; i < n; i++)
+    {
+        if (points[i].x < points[left].x)
+        {
+            left = i;
+        }
+    }
+    int p = left;
+    do
+    {
+        hull.push_back(points[p]);
+        int q = (p + 1) % n;
+        for (int i = 0; i < n; i++)
+        {
+            if (tochange(points[p], points[q], points[i]))
+            {
+                q = i;
+            }
+        }
+        p = q;
+    } while (p != left);
+    for (int i = 0; i < hull.size(); i++)
+    {
+        cout << hull[i].x << " , " << hull[i].y << endl;
+    }
+}
+int main()
+{
+    point points[] = {{0, 4}, {1, 1}, {2, 2}, {4, 0}, {4, 4}, {0, 0}, {3, 3}};
+    convexhull(points, 7);
+    return 0;
+}
+
+
+---------------------------------------------------------------------------------------
+
+//String Matching
+
+***************************
+//Naive
+
+
+***************************
+//Rabin Karp
+#include<iostream>
+using namespace std;
+#include<string>
+#include<math.h>
+int valueOf(char ch)
+{
+    return (ch-'0');
+}
+bool check_characters(string T, string P, int s)
+{
+    int n,m,i;
+    n = T.length();
+    m = P.length();
+    for(i=0;i<m;i++)
+    {
+        if(P[i]!=T[s+i+1])
+            return false;
+    }
+    return true;
+}
+void rabin_karp_matcher(string T, string P, int d, int q)
+{
+    int n, m, h, p, t0, i,s;
+    n = T.length();
+    m = P.length();
+    h = (int)pow(d,m-1)%q;
+    cout<<"h value is "<<h<<endl;
+    p = 0;
+    t0 = 0;
+    for(i=0;i<m;i++)
+    {
+        p = (d*p + valueOf(P[i]))%q;
+        t0 = (d*t0 + valueOf(T[i]))%q;
+    }
+    for(s=-1;s<n-m;s++)
+    {
+        cout<<p<<" "<<t0<<endl;
+        if(p==t0)
+        {
+           if (check_characters(T,P,s))
+                cout<<"Pattern occurs at index "<<s+1<<endl;
+        }
+        if(s<n-m)
+            t0 = (d*(t0-valueOf(T[s+1])*h)+valueOf(T[s+m+1]))%q;
+    }
+}
+int main()
+{
+    string T, P;
+    int d,q;
+    cin>>T>>P;
+    cout<<"Enter base and prime number";
+    cin>>d>>q;
+    rabin_karp_matcher(T,P,d,q);
+}
+
+***************************
+//KMP
+#include<iostream>
+using namespace std;
+#include<string>
+#include<vector>
+void compute_prefix_function(string P,vector<int> &pi)
+{
+    int m,q,k;
+    m = P.length();
+    pi[0] =-1;
+    k = -1;
+    for(q=1;q<m;q++)
+    {
+        while((k>=0)&&(P[k+1]!=P[q]))
+        {
+            k = pi[k];
+        }
+
+        if(P[k+1]==P[q])
+            k = k+1;
+        
+        pi[q] = k+1;
+    }
+}
+void kmp_matcher(string T, string P)
+{
+    int n,m,q,i;
+    n = T.length();
+    m = P.length();
+    vector<int> pi(m,-1);
+    compute_prefix_function(P,pi);
+    for(auto pi_entry:pi)
+        cout<<pi_entry<<" ";
+    cout<<endl;
+    q = -1;
+    for(i=0;i<n;i++)
+    {
+        while((q>=0)&&(P[q+1]!=T[i]))
+            q = pi[q];
+        if(P[q+1]==T[i])
+            q = q+1;
+        if(q==m-1)
+        {
+            cout<<"Pattern occurs at "<<i-(m-1)<<endl;
+            q = pi[q];
+        }
+        
+    }
+
+}
+int main()
+{
+    string T,P;
+    int i;
+    cin>>T>>P;
+    kmp_matcher(T,P);
+    
+}
+-----------------------------------------------------------------------------------
+
+//0/1 Knapsack
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int knapsackUtil(vector<int> &wt, vector<int> &val, int ind, int W, vector<vector<int>> &dp)
+{
+
+    if (ind == 0)
+    {
+        if (wt[0] <= W)
+            return val[0];
+        else
+            return 0;
+    }
+
+    if (dp[ind][W] != -1)
+        return dp[ind][W];
+
+    int notTaken = 0 + knapsackUtil(wt, val, ind - 1, W, dp);
+
+    int taken = INT_MIN;
+    if (wt[ind] <= W)
+        taken = val[ind] + knapsackUtil(wt, val, ind - 1, W - wt[ind], dp);
+
+    return dp[ind][W] = max(notTaken, taken);
+}
+
+int knapsack(vector<int> &wt, vector<int> &val, int n, int W)
+{
+
+    vector<vector<int>> dp(n, vector<int>(W + 1, -1));
+    return knapsackUtil(wt, val, n - 1, W, dp);
+}
+
+int main()
+{
+
+    vector<int> wt = {1, 2, 4, 5};
+    vector<int> val = {5, 4, 8, 6};
+    int W = 5;
+
+    int n = wt.size();
+
+    cout << "The Maximum value of items, thief can steal is " << knapsack(wt, val, n, W);
+}
+
+
+------------------------------------------------------------------------------------
+//Greedy (Activity Selection)
+//{ Driver Code Starts
+//Initial Template for C++
+
+#include <bits/stdc++.h>
+using namespace std;
+
+
+// } Driver Code Ends
+//User function Template for C++
+
+class Solution{
+public:
+    bool cmp(pair<int,int> a, pair<int,int> b){
+        return (a.second < b.second);
+    }
+    vector<int> maxMeetings(int N,vector<int> &S,vector<int> &F){
+        pair<int,int>v[N+1];
+        for(int i=0;i<N;i++){
+            v[i].first=F[i];
+            v[i].second=i;
+        }
+        sort(v,v+N);
+        int timel = v[0].first;
+        vector<int>activity;
+        activity.push_back(v[0].second+1);
+        for(int i = 1;i<N;i++){
+            if(S[v[i].second] > timel){
+                activity.push_back(v[i].second +1);
+                timel = v[i].first;
+            }
+        }
+        sort(activity.begin(),activity.end());
+        return activity;
+    }
+};
+
+//{ Driver Code Starts.
+
+int main(){
+    int t;
+    cin>>t;
+    while(t--){
+        int n;
+        cin>>n;
+        vector<int> S(n),F(n);
+        for(int i=0;i<n;i++){
+            cin>>S[i];
+        }
+        for(int i=0;i<n;i++){
+            cin>>F[i];
+        }
+        Solution ob;
+        vector<int> ans=ob.maxMeetings(n,S,F);
+        for(int i=0;i<ans.size();i++){
+            cout<<ans[i];
+            if(i!=ans.size()-1){
+                cout<<" ";
+            }
+        }
+        cout<<endl;
+    }
+    return 0;
+}
+// } Driver Code Ends
+---------------------------------------------------------------------------------------
+//Rod Cutting
+My Fibanocci Term
+ 
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+long long find(int n,vector<long long>& arr){
+if(arr[n] != -1){
+return arr[n];
+}
+
+arr[n] = find(n-1,arr) + find(n-2,arr) + find(n-3,arr);
+return arr[n];
+}
+
+int main(){
+
+int n;
+cin>>n;
+
+vector<long long> arr(n+1,-1);
+arr[0] = 0;
+arr[1] = 0;
+arr[2] = 1;
+arr[3] = 2;
+
+long long answer = find(n,arr);
+
+cout<<answer;
+
+return 0;
+}
+
+Cut into lengths 3 or 5
+
+#include<iostream>
+#include<algorithm>
+#include<climits>
+using namespace std;
+
+int auxRodCutting(int *p , int* revs, int n) {
+if (revs[n] > 0) {
+return revs[n];
+}
+if (n == 0) {
+revs[n] = 0;
+return revs[n];
+}
+if (n > 0 && n < 3) {
+revs[n] = -1;
+return revs[n];
+}
+int q = INT_MIN;
+q = max(q, p[2] + auxRodCutting(p, revs, n-3));
+if (n >= 5) {
+q = max(q, p[4] + auxRodCutting(p, revs, n-5));
+}
+revs[n] =q;
+return revs[n];
+}
+int rodCutting(int* p, int n) {
+int* maxRevs = new int(n+1);
+for (int i = 0; i < n+1; i++) {
+maxRevs[i] = INT_MIN;
+}
+int maxRev = auxRodCutting(p ,maxRevs, n);
+/*for (int i = 0; i < n+1; i++) {
+cout << maxRevs[i] << endl;
+}*/
+return maxRev;
+}
+int main () {
+int len, i;
+//cout << "Enter maximum length of the rod: ";
+cin >> len;
+int* prices = new int(len);
+//cout << "Enter price for length 3: ";
+cin >> prices[2];
+//cout << "Enter price for length 5: ";
+cin >> prices[4];
+int maxRev = rodCutting(prices, len);
+cout << maxRev << endl;
+return 0;
+}
+
+Print Rod Lengths
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+void rodCutting(int n, const vector<int>& prices) {
+    vector<int> revenue(n + 1, 0);
+    vector<int> cuts(n + 1, 0);
+
+    for (int i = 1; i <= n; i++) {
+        int maxRevenue = -1;
+        for (int j = 1; j <= i / 2; j++) {
+            int currentRevenue = prices[j] + revenue[i - j];
+            if (currentRevenue > maxRevenue) {
+                maxRevenue = currentRevenue;
+                cuts[i] = j;
+            }
+        }
+        if (prices[i] > maxRevenue) {
+            maxRevenue = prices[i];
+            cuts[i] = i;
+        }
+        revenue[i] = maxRevenue;
+    }
+
+    
+    while (n > 0) {
+        cout << cuts[n] << " ";
+        n -= cuts[n];
+    }
+    cout << revenue[revenue.size() - 1] << endl;
+}
+
+int main() {
+    int n;
+    cin >> n;
+
+    vector<int> prices(n + 1);
+    for (int i = 1; i <= n; i++) {
+        cin >> prices[i];
+    }
+
+    rodCutting(n, prices);
+
+    return 0;
+}
+
+Cut Rods of Preferred Lengths
+
+#include<iostream>
+#include<algorithm>
+#include<climits>
+using namespace std;
+
+int auxRodCutting(int *p , int* revs, int n, int* prefs, int t) {
+//cout << "Piece size: " << n << endl;
+if (revs[n] >= 0) {
+return revs[n];
+}
+if (n == 0) {
+revs[n] = 0;
+return revs[n];
+}
+if (n > 0 && n < prefs[0]) {
+revs[n] = -1;
+return revs[n];
+}
+int q = INT_MIN;
+for (int i = 0; i < t; i++) {
+if (prefs[i] <= n) {
+q = max(q, p[prefs[i]-1] + auxRodCutting(p, revs, n - prefs[i], prefs, t));
+}
+}
+revs[n] =q;
+return revs[n];
+}
+int rodCutting(int* p, int n, int* prefs, int t) {
+int* maxRevs = new int(n+1);
+for (int i = 0; i < n+1; i++) {
+maxRevs[i] = INT_MIN;
+}
+int maxRev = auxRodCutting(p ,maxRevs, n, prefs, t);
+for (int i = 0; i < n+1; i++) {
+//cout << maxRevs[i] << endl;
+}
+return maxRev;
+}
+int main () {
+int len, i;
+cin >> len;
+int* prices = new int(len);
+for (i = 0; i < len; ++i) {
+cin >> prices[i];
+}
+int t;
+cin >> t;
+int* prefs = new int(t);
+for (i = 0; i < t; i++) {
+cin >> prefs[i];
+}
+int maxRev = rodCutting(prices, len, prefs, t);
+cout << maxRev << endl;
+return 0;
+}
+
+Cut Rods of Even Length only
+
+#include <iostream>
+#include <cstring>
+#include <climits>
+using namespace std;
+
+// Function to calculate maximum revenue using Top-Down approach
+int cutRod(int price[], int n, int dp[]) {
+    if (n <= 0)
+        return 0;
+        
+    // If the value is already calculated, return it
+    if (dp[n] != -1)
+        return dp[n];
+        
+    int max_val = INT_MIN;
+    
+    // Loop through all possible even sizes of the rod
+    for (int i = 2; i <= n; i += 2) {
+        int cost = price[i];
+        int val = cost + cutRod(price, n-i, dp);
+        
+        // Update max_val
+        if (val > max_val)
+            max_val = val;
+    }
+    
+    // Store the computed value in dp[] and return it
+    dp[n] = max(dp[n-1], max_val);
+    return dp[n];
+}
+
+int main() {
+    int n;
+    cin >> n;
+    
+    int price[n+1];
+    for (int i = 1; i <= n; i++)
+        cin >> price[i];
+        
+    // Initialize dp[] with -1
+    int dp[n+1];
+    memset(dp, -1, sizeof(dp));
+    dp[0] = 0;
+    
+    int ans = cutRod(price, n, dp);
+    cout << ans;
+    
+    return 0;
+}
+
